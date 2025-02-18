@@ -10,13 +10,19 @@ using namespace std;
  *  param: string f is the name of the file
  *  return: -1 if error, 0 if everything ok 
  */
-void print_file(string f){
+int print_file(string f){
     string linha;
     ifstream file(f);
-    while(getline(file,linha)){
-        cout<<linha<<endl;
+    if(file.good()){
+        while(getline(file,linha)){
+            cout<<linha<<endl;
+        }
+        file.close();
     }
-    file.close();
+    else{
+        return -1;
+    }
+    return 0;
 }
 
 /**
@@ -24,16 +30,23 @@ void print_file(string f){
  *  param: string f is the name of the file
  *  return: -1 if error, 0 if everything ok 
  */
-void count_characters(string f) {
+int count_characters(string f) {
     string linha;
     int chars=0;
     ifstream file(f);
-    while(getline(file,linha)){
-        for(int i=0; i<linha.length(); i++){
-            chars++;
+    if(file.good()){
+        while(getline(file,linha)){
+            for(long unsigned i=0; i<=(linha.length()); i++){
+                chars++;        
+            }
         }
+        chars--;
+    }
+    else{
+        return -1;
     }
     cout<<"O número total de caracteres é: "<<chars<<'\n';
+    return 0;
 }
 
 
