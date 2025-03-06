@@ -10,13 +10,7 @@ public: // Porque e', para ja', importante? Experimente comentar a linha...
   int numero;
   float media;
   // Construtores abaixo
-  Aluno(string nom)
-  { 
-    nome = nom;
-    curso = "";
-    numero = 0;
-    media = 0;
-  }
+  Aluno(string nom): nome(nom), curso(""), numero(0), media(0){}
   
   Aluno(string nom, string cur, int num)
   { 

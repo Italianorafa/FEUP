@@ -15,9 +15,23 @@ struct Person {
 */
 int import(const string name_file, Person (&v)[10])
 {
-    string linha;
+    int i=0;
+    string linha, age_;
     ifstream fin(name_file);
+    if(!fin){
+        return -1;
+    }
     
+    while(getline(fin, linha)){
+        stringstream lstream(linha);
+        getline(lstream,v[i].name,',');
+        getline(lstream, age_, ',');
+        v[i].age = stoi(age_);
+        getline(lstream, v[i].country);
+        i++;
+    }
+
+    return 0;
 }
 
 void print (Person (&v)[10])

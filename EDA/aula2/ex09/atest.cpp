@@ -11,6 +11,7 @@ int main()
 
 	a3.setIdade(6);
 	a3.setVeterinario(Veterinario("carlos macedo", "mamíferos"));
+	cout<<"vet3: "<< (a2.getVeterinario()).getNome();
 
 	cout << "Informação acerca de " << a1.getNome() << endl;
 	cout << "Animal: " << a1.getEspecie() << ", " << a1.getSexo() << ", " << a1.getNome() << ", " << a1.getIdade() << "; Responsavel: " << (a1.getVeterinario()).getNome() << endl;

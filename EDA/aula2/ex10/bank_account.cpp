@@ -1,38 +1,36 @@
 #include "bank_account.h"
 #include <iostream>
 
-BankAccount::BankAccount(int accNum, string accHolder, double bal) {
-  // alinea a)
-}
+BankAccount::BankAccount(int accNum, string accHolder, double bal): accountNumber(accNum), accountHolderName(accHolder), balance(bal){}
 
 int BankAccount::getAccountNumber() {
-   // alinea b)
+   return accountNumber;
 }
 
 void BankAccount::setAccountNumber(int accNum) {
-    // alinea c)
+    accountNumber= accNum;
 }
 
 string BankAccount::getAccountHolderName() {
-    // alinea b)
+    return accountHolderName;
 }
 
 void BankAccount::setAccountHolderName(string accHolder) {
-    // alinea c)
+    accountHolderName = accHolder;
 }
 
 double BankAccount::getBalance() {
-    // alinea b)
+    return balance;
 }
 
 void BankAccount::setBalance(double bal) {
-    // alinea c)
+    balance = bal;
 }
 
 void BankAccount::deposit(double amount) {
-    // alinea d)
+    balance += amount;
 }
 
 void BankAccount::withdraw(double amount) {
-   // alinea e)
+   balance -= amount;
 }
