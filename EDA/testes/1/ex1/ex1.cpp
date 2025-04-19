@@ -5,13 +5,27 @@ using namespace std;
 
 
 int insert_several(vector<int>& v, int n){
-    // questão 1 a)
+    int num = 2;
+    if(n<2){
+        return -1;
+    }
+    else{
+        while(num<=n){
+            v.push_back(num);
+            num += 2;
+        }
+    }
     return 0;
 }
 
 
 int insert_pos(vector<int>& v, int pos, int value){
-    //questão 1 b)
+    if(pos<0 || pos> v.size()){
+        return -1;
+    }
+    else{
+        v.insert(v.begin() + pos , value);
+    }
     return 0;
 }
 

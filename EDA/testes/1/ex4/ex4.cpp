@@ -9,38 +9,51 @@ using namespace std;
 
 
 class Car{
- // questão 2 a)
-
+    private:
+        string brand;
+        string model;
+        float price;
+        vector<string> colors;
+    public:
+        Car(string brand, string model, float price);
+        string getBrand() const;
+        string getModel() const;
+        float getPrice() const;
+        vector<string> getColors() const;
+        void setPrice(float euros);
+        void addColors(string color);
 };
 
 
 Car::Car(string brand, string model, float price){
-    // questão 2 b)
+    Car::brand = brand;
+    Car::model = model;
+    Car::price = price;
 }
 
-string Car::getbrand() const{
-     // questão 2 c)
+string Car::getBrand() const{
+    return brand;
 }
 
-string Car::getmodel() const{
-     // questão 2 c)
+string Car::getModel() const{
+    return model;
 }
 
 
-float Car::getPrice() const;{
-    // questão 2 c)
+float Car::getPrice() const{
+    return price;
 }
 
 vector<string> Car::getColors() const{
-  // // questão 2 c)
+    return colors;
 }
 
 
 void Car::setPrice(float euros) {
-   // questão 2 d)
+    if(euros>=0) price = euros;
 }
-void Car::addcolors(string color){
-    // questão 2 e)
+void Car::addColors(string color){
+    colors.push_back(color);
 }
 
 
@@ -74,9 +87,5 @@ int main()
     c1.addColors("Preto"); 
     cout << "Os elementos do atributo colors são:";
     print_vector(c1.getColors());  
-
-
-
-
 
 }

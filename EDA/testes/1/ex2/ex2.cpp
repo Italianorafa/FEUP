@@ -5,13 +5,27 @@ using namespace std;
 
 
 vector<int> rangeOfValues(vector<int>& v, int n1, int n2){
-   //questão 1a
-   
+    vector<int> valores = v;
+    if(n1 < n2){
+        return {};
+    }
+    for(int i=0; i<=v.size(); i++){
+        if(valores[i]<n1 || valores[i]>n2){
+            valores.erase(v.begin() + i);
+        }
+    }
+    return valores;
 }
 
 
 int insert_pos(vector<int>& v, int pos, int value, int rep){
-   //questão 1b
+    if(pos<0 || rep<0){
+        return -1;
+    }
+    else{
+        v.insert(v.begin() + pos, rep, value);
+    }
+    return 0;
 }
 
 // Utility function to print the vector

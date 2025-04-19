@@ -9,49 +9,81 @@ using namespace std;
 
 
 class Book{
- // questão 2 a)
-
+    private:
+        int isbn;
+        int quantity;
+        bool avaliable;
+        string title;
+        string author;
+        float price;
+        vector<string> genres;
+    public:
+        //constructors
+        Book(int ISNB, int quantity, string title, string author, float price);
+        //getters
+        int getISBN() const;
+        int getQuantity() const;
+        bool getAvailable() const;
+        string getTitle() const;
+        string getAuthor() const;
+        float getPrice() const;
+        vector<string> getGenres() const;
+        //setters
+        void setPrice(float euros);
+        void addGenres(string genero);
 };
 
 
-Book::Book(int ISNB, int quantity, string title, string author, float price){
-    // questão 2 b)
+Book::Book(int ISBN, int quantity, string title, string author, float price){
+    isbn = ISBN;
+    Book::title = title;
+    Book::author = author;
+    if(price<0) Book::price = 0;
+    else Book::price =price;
+
+    if(quantity<0) Book::quantity=0;
+    else{
+        Book::quantity = quantity;
+        avaliable = true;
+    }
 }
 
-int Book::getISNB() const{
-     // questão 2 c)
+int Book::getISBN() const{
+    return isbn;
 }
 
 int Book::getQuantity() const{
-     // questão 2 c)
+    return quantity;
 }
 
 bool Book::getAvailable() const{
-     // questão 2 c)
+    return avaliable;
 }
 
 string Book::getTitle() const{
-     // questão 2 c)
+    return title;
 }
 
 string Book::getAuthor() const{
-     // questão 2 c) 
+    return author;
 }
 
 float Book::getPrice() const{
-    // questão 2 c)
+    return price;
 }
 
 vector<string> Book::getGenres() const{
-  // // questão 2 c)
+    return genres;
 }
 
 
 void Book::setPrice(float euros){
-   // questão 2 d)
-
+   if(euros>=0){
+    price = euros;
+   }
+}
 void Book::addGenres(string genrs){
-    // questão 2 e)
+    genres.push_back(genrs);
 }
 
 
