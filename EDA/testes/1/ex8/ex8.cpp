@@ -8,26 +8,52 @@ struct Rectangle{
 
 int scale_rectangle_ptr(Rectangle *rectangle, int factor)
 {
-  //alínea a)
-  
+  if(rectangle == nullptr){
+    return -1;
+  }
+  rectangle->height = rectangle->height * factor;
+  rectangle->width = rectangle->width *factor;
+
+  return 0;
 } 
 
 
 int scale_rectangle_ref(Rectangle &rectangle, int *factor)
 {
-  //alínea b)
-  
+  if(factor == nullptr){
+    return -1;
+  }
+  int fator = *factor;
+  rectangle.height = rectangle.height * fator;
+  rectangle.width = rectangle.width * fator;
+
+  return 0;
 }
 
 Rectangle *copy_scaled_rectangle(Rectangle *rectangle, int factor)
 {
-  //alínea c)
+  Rectangle *nRec = new Rectangle;
+  if(rectangle == nullptr){
+    return nullptr;
+  } 
+
+  nRec->height = rectangle->height * factor;
+  nRec->width = rectangle->width * factor;
+  
+  return nRec;
 }
 
 int swap_dims_rectangles(Rectangle *rectangle1, Rectangle &rectangle2)
 {
-  //alínea d)
+  if(rectangle1 == nullptr){
+    return -1;
+  }
+  Rectangle auxR;
+  auxR = *rectangle1;
+  *rectangle1 = rectangle2;
+  rectangle2 = auxR;
 
+  return 0;
 }
 
 

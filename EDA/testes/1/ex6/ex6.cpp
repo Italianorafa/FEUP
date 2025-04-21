@@ -5,7 +5,32 @@ using namespace std;
  
 int removeElements(stack<string> &s, vector<string> v)
 {
-  
+    stack<string> auxs;
+    if(s.empty() || v.empty()){
+        return -1;
+    }
+    else{
+        
+        while(!s.empty()){
+            string top = s.top();
+            s.pop();
+            bool found = false;
+
+            for(const string i: v){
+                if(top == i){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                auxs.push(top);
+            }
+        }
+    }
+    while(!auxs.empty()){
+        s.push(auxs.top());
+        auxs.pop();
+    }
     return 0;
 }
 

@@ -14,7 +14,31 @@ void printListfloat(list<float> list_name);
 
 int removeElements(list<int> *list1, int n)
 {
+    if(list1 == nullptr || list1->empty()){
+        return -1;
+    }
+    list<int> auxl;
+    auto it = list1->begin();    
+    while(!list1->empty()){
+        int autal = *it;
+        it = list1->erase(it);
+        
+
+        if(autal<=n){
+            auxl.push_back(autal);
+        }
+    }
+
+
+    it = auxl.begin();
+    while (!auxl.empty())
+    {
+        list1->push_back(*it);
+        it = auxl.erase(it);
+        
+    }
     
+    return 0;
 }
 
 
