@@ -26,12 +26,34 @@ void SocialNetwork::printSocialNetwork() {
 
 
 void SocialNetwork::addFriendship(int u, int v) {
-    // alínea a)
+    if(u<0 || u>this->V || v<0 || v>this->V) return;
+    else{
+        adjacencyMatrix[u][v] = true;
+        adjacencyMatrix[v][u] = true;
+    }
 }
 
 void SocialNetwork::findMutualFriends(int person1, int person2)
 {
-    // alínea b)
+    vector<int> mutual;
+    if(person1<0 || person1>V || person2<0 || person2>V) return;
+    else{
+        for(size_t i=0; i<adjacencyMatrix[person1].size(); i++){
+            for(size_t j=0; j<adjacencyMatrix[person2].size(); j++){
+                if(i==j){
+                    if(adjacencyMatrix[person1][i]==1 && adjacencyMatrix[person2][j]==1){
+                        mutual.push_back(i);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    cout<<"mutual friends between person "<<person1<<" and person "<<person2<< ": ";
+    for(int a : mutual){
+        cout<< a << " ";
+    }
+    cout<<endl;
 }
 
 void SocialNetwork::DFSUtil(int v, vector<bool>& visited) {
