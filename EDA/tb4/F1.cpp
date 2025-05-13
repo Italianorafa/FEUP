@@ -1110,12 +1110,56 @@ int ConstructorGraph::removeTransfer(Constructor* ConstructorA, Constructor* Con
 /**************************/
 
 Constructor* ConstructorGraph::worstVictories(Constructor* constructorA) {
+    if(constructorA == nullptr){
+        return nullptr;
+    }
 
-return nullptr;
+    int aPos = constructorPosition(constructorA);
+    if(aPos == -1){
+        return nullptr;
+    }
+
+    int maxDif = -10;
+    int pointsDif = -10;
+    Constructor* cons = nullptr;
+
+    auto netLine = network.at(aPos);
+
+    for(auto it = netLine.begin(); it != netLine.end(); it++){
+        if((*it)->winsDiff > maxDif || ((*it)->winsDiff == maxDif && (*it)->pointsDiff > pointsDif) || (*it)->winsDiff == maxDif && (*it)->pointsDiff == pointsDif && (*it)->constructor->getName() < (cons->getName())){ 
+            maxDif = (*it)->winsDiff;
+            pointsDif = (*it)->pointsDiff;
+            cons = (*it)->constructor;
+        }
+    }
+
+    return cons;
 }
 
 Constructor* ConstructorGraph::moreDrivers(Constructor* constructorB) {
-return nullptr;
+    if(constructorB == nullptr){
+        return nullptr;
+    }
+    int maxDriv = -10;
+    int pointsDif = -10;
+    int maxDif = -10;
+    Constructor* cons = nullptr;
+    
+    for(int i=0; i<network.size(); i++){
+        auto line = network.at(i);
+        for(auto it : line){
+            if(it->constructor == constructorB){
+                if(it->numDrivers>maxDriv || (it->numDrivers == maxDriv && it->pointsDiff > pointsDif) || (it->numDrivers == maxDriv && it->pointsDiff == pointsDif && it->winsDiff>maxDif) || (it->numDrivers == maxDriv && it->pointsDiff == pointsDif && it->winsDiff == maxDif && it->constructor->getName() < cons->getName())){
+                    maxDriv = it->numDrivers;
+                    maxDif = it->winsDiff;
+                    pointsDif = it->pointsDiff;
+                    cons = constructorNodes[i];
+                }
+            }
+        }
+    }
+
+    return cons;
 }
 
 vector<string> ConstructorGraph::noConnection ( Constructor* constructorA ) {
