@@ -1163,13 +1163,64 @@ Constructor* ConstructorGraph::moreDrivers(Constructor* constructorB) {
 }
 
 vector<string> ConstructorGraph::noConnection ( Constructor* constructorA ) {
-  
-return {};
+    vector<string> construtores;
+    
+    if(constructorA == nullptr){
+        return {};
+    }
+
+    int aPos = constructorPosition(constructorA);
+    if(aPos == -1 || aPos == -2){
+        return {};
+    }
+
+    auto line = network.at(aPos);
+    for(size_t i=0; i<constructorNodes.size(); i++){
+        if(i == aPos) continue;
+        auto it = find_if(line.begin(), line.end(), [&](auto *c1){
+            return c1->constructor == constructorNodes[i];
+        });
+        if(it == line.end()){
+            construtores.push_back(constructorNodes.at(i)->getName());
+        }
+    }
+    return construtores;
 }
 
 int ConstructorGraph::updateTransfersOfYear(int year,  RaceManagement &RaM) {
+    if(year<1950 || year>2025){
+        return -1;
+    }
+    vector<Constructor*> atual;
+    vector<Constructor*> anterior;
+    int transfers=0;
+    for(auto race: RaM.getListRaces()){
+        if(race->getSeason() == year-1){
+            for(auto result : race->getListRaceResults()){
+                anterior.push_back(result->constructor);
+            }
+        }
+        else if(race->getSeason() == year){
+            for(auto result : race->getListRaceResults()){
+                atual.push_back(result->constructor);
+            }
+        }
+        else continue;
+    }
 
-    return -1;
+
+    for(size_t i=0; i<anterior.size(); i++){
+        for(auto dri : anterior[i]->getDrivers()){
+            auto it = find_if(atual[i]->getDrivers().begin(), atual[i]->getDrivers().end(), [&](auto *c1){
+                return c1->driver->getName() == dri->driver->getName();
+            });
+            if(it == atual[i]->getDrivers().end()){
+                transfers++;
+            }
+        }
+        
+    }
+    return transfers;
 }
 
 
