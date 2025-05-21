@@ -1193,7 +1193,7 @@ int ConstructorGraph::updateTransfersOfYear(int year,  RaceManagement &RaM) {
     }
     vector<Constructor*> atual;
     vector<Constructor*> anterior;
-    int transfers=0;
+    
     for(auto race: RaM.getListRaces()){
         if(race->getSeason() == year-1){
             for(auto result : race->getListRaceResults()){
@@ -1208,7 +1208,7 @@ int ConstructorGraph::updateTransfersOfYear(int year,  RaceManagement &RaM) {
         else continue;
     }
 
-
+    int transfers=0;
     for(size_t i=0; i<anterior.size(); i++){
         for(auto dri : anterior[i]->getDrivers()){
             auto it = find_if(atual[i]->getDrivers().begin(), atual[i]->getDrivers().end(), [&](auto *c1){
@@ -1231,12 +1231,64 @@ F1APP::F1APP()
 
 
 void F1APP::updateF1APP(DriverManagement &drM, ConstructorManagement &coM, CircuitManagement &ciM, RaceManagement &raM) {
-
+    drivers = drM.getVectorDrivers();
+    constructors = coM.getVectorConstructores();
+    circuitos = ciM.getListCircuits();
+    races = raM.getListRaces();
 }
 
 Driver* F1APP::mostRaceFinish(int yearA, int yearB) {
 
-return nullptr;
+    if(yearA < 1945 || yearA > 2025 || yearB < 1945 || yearB > 2025 || yearA > yearB) return nullptr;
+    vector<pair<Driver*,int>> sequencias;
+
+    auto orderedRaces = races;
+    orderedRaces.sort([](Race* r1, Race* r2){
+        return r1->getSeason() <= r2->getSeason();
+        
+    });
+    for(auto piloto : drivers){
+        int maxSequence=0, currentSequence=0;
+
+        for(auto corrida : orderedRaces){
+            if(corrida->getSeason() >= yearA && corrida->getSeason() <= yearB){
+                bool inRace = false;
+                for(auto resultados : corrida->getListRaceResults()){
+                    if(resultados->drive == piloto){
+                        if(resultados->position != -1){
+                            inRace = true;
+                            currentSequence++;
+                        }
+                        else{
+                            inRace = true;
+                            if(maxSequence < currentSequence){
+                            maxSequence = currentSequence;
+                            }
+                            currentSequence = 0;
+                        }
+                        break;
+                    } 
+                }
+                if(!inRace){
+                    if(maxSequence < currentSequence){
+                        maxSequence = currentSequence;
+                    }
+                    currentSequence = 0;
+                }
+            }
+            
+        }
+        if(maxSequence < currentSequence){
+            maxSequence = currentSequence;
+        }
+        if(maxSequence>0) sequencias.push_back(make_pair(piloto, maxSequence));
+    }
+    sort(sequencias.begin(), sequencias.end(), [](auto s1, auto s2){
+        if(s1.second != s2.second) return s1.second > s2.second;
+        else return s1.first->getName() < s2.first->getName();
+    });
+    if(sequencias.empty()) return nullptr;
+    return sequencias[0].first;
 }
 
 list<string> F1APP::pointsWidthoutWon(Circuit* cir) {
@@ -1250,8 +1302,35 @@ return "";
 }
 
 Constructor * F1APP::mostRaceNotPole(int yearA, int yearB) {
- 
-return nullptr;
+    if(yearA < 1945 || yearA > 2025 || yearB < 1945 || yearB > 2025 || yearA > yearB) return nullptr;
+    vector<pair<Constructor*, int>> wins;
+
+
+    for(auto construtor : constructors){
+        int vitorias = 0;
+        for(auto corrida : races){
+            if(corrida->getSeason() >= yearA && corrida->getSeason() <= yearB){
+                for(auto resultado : corrida->getListRaceResults()){
+                    if(resultado->constructor == construtor){
+                        if(resultado->grid != 1 && resultado->position == 1 && resultado->status == 1){
+                            vitorias++;
+                        }
+                    }
+                }
+            }
+        }
+        if(vitorias>0) wins.push_back(make_pair(construtor, vitorias));
+    }
+
+    sort(wins.begin(), wins.end(), [](auto w1, auto w2){
+        if(w1.second != w2.second) return w1.second > w2.second;
+        else return w1.first->getName() < w2.first->getName();
+    });
+    for(auto aux:wins){
+        cout<<aux.first->getName()<<"  ";
+        cout<<aux.second<<endl;
+    }
+    return wins[0].first;
 
 };
 vector<pair<string,int>> F1APP::classificationBySeason(int season){
