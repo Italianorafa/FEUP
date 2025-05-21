@@ -840,10 +840,8 @@ class ConstructorGraph {
          *  @brief  Determine which constructor had the worst deficit of victories with drivers coming from constructor A.
          *  @param  constructorA pointer to the Constructor ( a node ) 
          *  @return The constructor width worst deficit of victories | NULL if an error occurs
-         *  @note   If there are 2 or more constructor with the same number of deficit of victories, the second criterion is the largest number of users watching the series.
-         *  @note   If there are 2 or more series with the same number of episodes watched, the second criterion is the largest number of users watching the series.
-         *  @note   The 3rd criterion in case of a tie in the previous ones is the title of the highest series alphabetically.
-         *  @note   The return type is a vector in case some series have been equally most watched.
+         *  @note   If there are 2 or more constructor with the same number of deficit of victories, the constructor with the best points difference is selected
+         *  @note   If the tie persists, the constructor whose name is alphabetically smaller is chosen.
          */
         Constructor* worstVictories(Constructor* constructorA);
 
@@ -853,13 +851,12 @@ class ConstructorGraph {
          *  @return Returns the name of the selected builder | NULL on error or if there are no pilot transfers to builder B
          *  @note   In the event of a tie in the total number of drivers, the constructor with the best points difference is selected
          *  @note   If the tie persists, the constructor with the best difference in victories is chosen.
-         *  @note   If the tie persists, the builder whose name is alphabetically smaller is chosen.
-         *  @note   The return type is a vector in case some series have been equally most watched.
+         *  @note   If the tie persists, the constructor whose name is alphabetically smaller is chosen.
          */
         Constructor* moreDrivers(Constructor* constructorB);
 
          /**
-         *  @brief  Determines builders that have no connection to a given builder. In other words, it identifies the constructors that did not receive pilots from constructor A nor sent pilots to that constructor.
+         *  @brief  Determines construtors that have no connection to a given construtor. In other words, it identifies the constructors that did not receive pilots from constructor A nor sent pilots to that constructor.
          *  @param  constructorA pointer to the Constructor ( a node ) 
          *  @return   Returns an array with the names of these constructors, sorted alphabetically.
          *  @return   Returns NULL on error or if there are no pilot transfers to or from constructor A.
@@ -883,16 +880,16 @@ class ConstructorGraph {
 
 class F1APP {
     private:
-    vector<Driver*> drivers;
-    vector<Constructor*> constructors;
-    list<Circuit*> circuitos;
-    list<Race*> races;
+    
     
     
     public:
         /* --- Constructor --- */
         F1APP();
-      
+            vector<Driver*> drivers;
+            vector<Constructor*> constructors;
+            list<Circuit*> circuitos;
+            list<Race*> races;
 
 
            /**

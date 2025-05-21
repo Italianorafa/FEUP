@@ -1304,35 +1304,37 @@ return "";
 Constructor * F1APP::mostRaceNotPole(int yearA, int yearB) {
     if(yearA < 1945 || yearA > 2025 || yearB < 1945 || yearB > 2025 || yearA > yearB) return nullptr;
     vector<pair<Constructor*, int>> wins;
-
-
-    for(auto construtor : constructors){
-        int vitorias = 0;
-        for(auto corrida : races){
-            if(corrida->getSeason() >= yearA && corrida->getSeason() <= yearB){
-                for(auto resultado : corrida->getListRaceResults()){
-                    if(resultado->constructor == construtor){
-                        if(resultado->grid != 1 && resultado->position == 1 && resultado->status == 1){
-                            vitorias++;
+    
+    
+    for(auto aux : constructors){
+        wins.push_back(make_pair(aux, 0));
+    }
+    
+    for(auto corrida : races){
+        if(corrida->getSeason() >= yearA && corrida->getSeason() <= yearB){
+            bool counted = false;
+            for(auto resultado : corrida->getListRaceResults()){
+                if(!counted && resultado->grid != 1 && resultado->position == 1 && resultado->status == 1){
+                    for(auto &par : wins){
+                        if(par.first == resultado->constructor){
+                            par.second++;
+                            counted = true;
+                            break;
                         }
                     }
                 }
             }
         }
-        if(vitorias>0) wins.push_back(make_pair(construtor, vitorias));
     }
 
-    sort(wins.begin(), wins.end(), [](auto w1, auto w2){
+    sort(wins.begin(), wins.end(), [](const auto w1, const auto w2){
         if(w1.second != w2.second) return w1.second > w2.second;
         else return w1.first->getName() < w2.first->getName();
     });
-    for(auto aux:wins){
-        cout<<aux.first->getName()<<"  ";
-        cout<<aux.second<<endl;
-    }
-    return wins[0].first;
 
-};
+    if(wins.empty()) return nullptr;
+    return wins[0].first;
+}
 vector<pair<string,int>> F1APP::classificationBySeason(int season){
 
 return {};
