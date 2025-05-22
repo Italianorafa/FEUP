@@ -884,14 +884,24 @@ class F1APP {
         vector<Constructor*> constructors;
         list<Circuit*> circuits;
         list<Race*> races;
-    
-    
+
+        vector<int> v59 = {8, 6, 4, 3, 2};
+        vector<int> v90 = {9, 6, 4, 3, 2, 1};
+        vector<int> v02 = {10, 6, 4, 3, 2, 1};
+        vector<int> v09 = {10, 8, 6, 5, 4, 3, 2, 1};
+        vector<int> v24 = {25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
+
+        vector<vector<int>> points {v59, v90, v02, v09, v24};
     public:
         /* --- Constructor --- */
         F1APP();
       
 
 
+        /** 
+        *  @brief Return the vector of points, splited by season (0 = v59, 1 = v90, 2 = v02, 3 = v09, 4 = v24)
+        */
+        vector<vector<int>> getPoints() const;
            /**
          *  @brief  Fill in the F1APP class by searching for information from the various classes available..
          *  @param  drM the object width all drivers.

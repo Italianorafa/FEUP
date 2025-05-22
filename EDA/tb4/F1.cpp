@@ -1366,43 +1366,120 @@ Driver* F1APP::mostRaceFinish(int yearA, int yearB) {
 }
 
 list<string> F1APP::pointsWidthoutWon(Circuit* cir) {
+    list<string> pilotos;
 
-return {};
+    for(auto d : drivers){
+        pilotos.push_back(d->getName());
+    }
+    if(!cir){
+        return {};
+    }
+
+    for(auto corridas : races){
+       
+        if(corridas->getCircuit()->getCircuitId() == cir->getCircuitId()){
+            
+            if(corridas->getSeason() > 1950 && corridas->getSeason() <= 1959 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 5)){
+                    bool encontrado = false;
+                    for(auto it = pilotos.begin(); it != pilotos.end(); it++){
+                        if(corridas->getListRaceResults()->drive->getName() == (*it)){
+                            encontrado = true;
+                            pilotos.erase(it);
+                        }
+                    }
+            }
+            if(corridas->getSeason() > 1960 && corridas->getSeason() <= 1990 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 6)){
+                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
+                        if(corridas->getListRaceResults()->drive->getName() == (*it)){
+                            encontrado = true;
+                            pilotos.erase(it);
+                        }
+                    }
+            }
+            if(corridas->getSeason() > 1991 && corridas->getSeason() <= 2002 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 6)){
+                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
+                        if(corridas->getListRaceResults()->drive->getName() == (it)){
+                            encontrado = true;
+                            pilotos.erase(it);
+                        }
+                    }
+            }
+            if(corridas->getSeason() > 2003 && corridas->getSeason() <= 2009 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 8)){
+                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
+                        if(corridas->getListRaceResults()->drive->getName() == (it)){
+                            encontrado = true;
+                            pilotos.erase(it);
+                        }
+                    }
+            }
+            if(corridas->getSeason() > 2010 && corridas->getSeason() <= 2014 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 10)){
+                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
+                        if(corridas->getListRaceResults()->drive->getName() == (*it)){
+                            encontrado = true;
+                            pilotos.erase(it);
+                        }
+                    }
+            }
+
+        }
+    }
+        pilotos.sort([](auto & c1, auto &c2) {
+             return c1 > c2;
+        });
+return pilotos;
 }
 
 string F1APP::poleToWin() {
-
-    vector<pair<Circuit*, int>> victories;
+    
+    vector <pair<Circuit*, pair<int,int>>> cirStatus; //circuito, vitorias, corridas
 
     for(auto corrida : races){
-        for(auto resultado : corrida->getListRaceResults()){
-            bool existe = false;
-            if(resultado->grid == 1 && resultado->position == 1 && resultado->status == 1){
-                for(auto &cir:victories){
-                    if(corrida->getCircuit() == cir.first){
-                        existe = true;
-                        cir.second++;
-                        break;
+        // Contando corridas 
+        if(corrida == nullptr || corrida->getCircuit() == nullptr) continue;
+        Circuit* circuito = corrida->getCircuit();
+        bool found = false;
+        for(auto &c : cirStatus){
+            if(c.first == circuito){
+                c.second.second++;
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            cirStatus.push_back(make_pair(circuito, make_pair(0, 1)));
+        }
+        // Contando vitorias
+
+        for(auto resultado: corrida->getListRaceResults()){
+            if(resultado == nullptr){
+                continue;
+            }
+            if(resultado->grid == 1 && resultado->position==1 && resultado->status==1){
+                for(auto &c : cirStatus){
+                    if(c.first == circuito){
+                    c.second.first++;
+                    found = true;
+                    break;
                     }
-                }
-                if(!existe) {
-                    victories.push_back(make_pair(corrida->getCircuit(), 1));
                 }
             }
         }
     }
-    float racio = 0.0;
-    Circuit* circuito;
-    for(auto cir:victories){
-        if((cir.second/races.size()) * 100 > racio){
-            racio = (cir.second/races.size()) * 100;
-            circuito = cir.first;
+
+    sort(cirStatus.begin(), cirStatus.end(), [](auto &s1, auto &s2){
+        if(s1.second.first/s1.second.second != s2.second.first/s2.second.second){
+            return s1.second.first/s1.second.second > s2.second.first/s2.second.second;
         }
-        else if((cir.second/races.size()) * 100 == racio && cir.first->getName() < circuito->getName()){
-            circuito = cir.first;
+        else{
+            return s1.first->getName() < s2.first->getName();
         }
+    });
+
+    if(cirStatus[0].first == nullptr){
+        return "";
     }
-    return circuito->getName();
+   
+    return cirStatus[0].first->getName();
 }
 
 Constructor * F1APP::mostRaceNotPole(int yearA, int yearB) {
@@ -1440,6 +1517,54 @@ Constructor * F1APP::mostRaceNotPole(int yearA, int yearB) {
     return wins[0].first;
 }
 vector<pair<string,int>> F1APP::classificationBySeason(int season){
+    vector<pair<string,int>> resultado; // driver,points
+    
+    if(season < 1945 || season > 2025){
+    return {};
+    }
 
-return {};
+    for(auto piloto : drivers){
+        if(piloto == nullptr) continue;
+        int points = 0;
+        for(auto corrida: races){
+            if(corrida == nullptr || corrida->getSeason() != season) continue;
+            
+                for(auto results : corrida->getListRaceResults()){
+                    if(results == nullptr || results->status != 1 || results->drive != piloto) continue;
+                    
+                        
+                        int posicao = results->position;
+                        if(posicao <= 5 && season <1960){
+                            points += v59[posicao - 1];
+                        }
+                        else if(posicao <= 6 && season >= 1960 && season < 1991){
+                            points += v90[posicao - 1];
+                        }
+                        else if(posicao <= 6 && season >= 1991 && season < 2003){
+                            points += v02[posicao - 1];
+                        }
+                        else if(posicao <= 8 && season >= 2003 && season < 2010){
+                            points += v09[posicao - 1];
+                        }
+                        else if(posicao <= 10 && season >= 2010 && season < 2025){
+                            points += v24[posicao - 1];
+                        }
+                    
+                }
+            
+        }
+        if(points > 0){
+            resultado.push_back(make_pair(piloto->getName(), points));
+        }
+    }
+
+    sort(resultado.begin(), resultado.end(), [](auto &r1, auto &r2){
+        return r1.second > r2.second;
+    });
+
+    return resultado;
+}
+
+vector<vector<int>> F1APP::getPoints() const{
+    return points;
 }
