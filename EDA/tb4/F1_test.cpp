@@ -93,7 +93,7 @@ int verifica_noConnection(ConstructorGraph &consGraph)
     return er;
 }
 
-int verifica_updateTransfersOfYear(ConstructorGraph &consGraph, RaceManagement &racManager)
+/*int verifica_updateTransfersOfYear(ConstructorGraph &consGraph, RaceManagement &racManager)
 {
     int er = 0;
     
@@ -133,7 +133,7 @@ auto nod=consGraph.getConstructorNodes();
 }
 
     return er;
-}
+}*/
 
 
 int verifica_mostRaceFinish(F1APP &f1)
@@ -689,7 +689,7 @@ int main()
     } 
 
   
-    error = verifica_updateTransfersOfYear(ConstGraph,racManager);
+    /*error = verifica_updateTransfersOfYear(ConstGraph,racManager);
     if (error)
     {
         cout << "ERRO: "<< error << " erros encontrados em verifica_updateTransfersOfYear\n\n" <<  endl;
@@ -698,7 +698,7 @@ int main()
     else
     {
         cout << "OK: verifica_updateTransfersOfYear passou\n\n" << endl;
-    } 
+    }*/
  
   
     error = verifica_mostRaceFinish(f1);

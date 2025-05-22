@@ -1191,35 +1191,109 @@ int ConstructorGraph::updateTransfersOfYear(int year,  RaceManagement &RaM) {
     if(year<1950 || year>2025){
         return -1;
     }
-    vector<Constructor*> atual;
-    vector<Constructor*> anterior;
+    vector<pair<Driver*,Constructor*>> atual; //year 
+    vector<pair<Driver*,Constructor*>> anterior; //year-1
     
+    // Construção dos vetores atual e anterior
     for(auto race: RaM.getListRaces()){
         if(race->getSeason() == year-1){
             for(auto result : race->getListRaceResults()){
-                anterior.push_back(result->constructor);
+                bool exist = false;
+                for(auto par : anterior){
+                    if(par.first == result->drive){
+                        exist = true;
+                        break;
+                    }
+                }
+                if(!exist){
+                    anterior.push_back(make_pair(result->drive, result->constructor));
+                }
             }
         }
         else if(race->getSeason() == year){
             for(auto result : race->getListRaceResults()){
-                atual.push_back(result->constructor);
+                bool exist = false;
+                for(auto par : atual){
+                    if(par.first == result->drive){
+                        exist = true;
+                        break;
+                    }
+                }
+                if(!exist){
+                    atual.push_back(make_pair(result->drive, result->constructor));
+                }
             }
         }
         else continue;
     }
 
-    int transfers=0;
-    for(size_t i=0; i<anterior.size(); i++){
-        for(auto dri : anterior[i]->getDrivers()){
-            auto it = find_if(atual[i]->getDrivers().begin(), atual[i]->getDrivers().end(), [&](auto *c1){
-                return c1->driver->getName() == dri->driver->getName();
-            });
-            if(it == atual[i]->getDrivers().end()){
-                transfers++;
+    // calculo das vitorias e pontos
+    vector<pair<Constructor*, pair<int,int>>> status;
+    
+    for(auto aux : constructorNodes){
+        status.push_back(make_pair(aux, make_pair(0,0)));
+    }
+    
+    for(auto corrida : RaM.getListRaces()){
+        if(corrida->getSeason() >= year){
+            bool counted = false;
+            for(auto resultado : corrida->getListRaceResults()){
+                if(!counted && resultado->position == 1 && resultado->status == 1){
+                    for(auto &par : status){
+                        if(par.first == resultado->constructor){
+                            par.second.first++;
+                            counted = true;
+                            break;
+                        }
+                    }
+                }
+                int points = 0;
+                if(resultado->position >= 1 && resultado->position <= 8){
+                    switch (resultado->position)
+                    {
+                    case 1: points = 10; break;
+                    case 2: points = 8; break;
+                    case 3: points = 6; break;
+                    case 4: points = 5; break;
+                    case 5: points = 4; break;
+                    case 6: points = 3; break;
+                    case 7: points = 2; break;
+                    case 8: points = 1; break;
+                }
+                for(auto stat : status){
+                    if(stat.first == resultado->constructor){
+                        stat.second.second += points;
+                        break;
+                        }
+                    }
+                }
             }
         }
-        
     }
+
+
+    int transfers = 0;
+    for(auto ant: anterior){
+        for(auto atu: atual){
+            if(ant.first == atu.first && ant.second != atu.second){
+                transfers++;
+                int winDif = 0, pointsDif = 0;
+                for(auto stat : status){
+                    if(stat.first == atu.second){
+                        winDif += stat.second.first;
+                        pointsDif += stat.second.second;
+                    }
+                    if(stat.first == ant.second){
+                        winDif -= stat.second.first;
+                        pointsDif -= stat.second.second;
+                    }
+                }
+                TransferData* transf = new TransferData(atu.second, 1, winDif, transfers);
+                addTranfer(ant.second, transf);
+            }
+        }
+    }
+    
     return transfers;
 }
 
@@ -1233,7 +1307,7 @@ F1APP::F1APP()
 void F1APP::updateF1APP(DriverManagement &drM, ConstructorManagement &coM, CircuitManagement &ciM, RaceManagement &raM) {
     drivers = drM.getVectorDrivers();
     constructors = coM.getVectorConstructores();
-    circuitos = ciM.getListCircuits();
+    circuits = ciM.getListCircuits();
     races = raM.getListRaces();
 }
 
@@ -1298,7 +1372,37 @@ return {};
 
 string F1APP::poleToWin() {
 
-return "";
+    vector<pair<Circuit*, int>> victories;
+
+    for(auto corrida : races){
+        for(auto resultado : corrida->getListRaceResults()){
+            bool existe = false;
+            if(resultado->grid == 1 && resultado->position == 1 && resultado->status == 1){
+                for(auto &cir:victories){
+                    if(corrida->getCircuit() == cir.first){
+                        existe = true;
+                        cir.second++;
+                        break;
+                    }
+                }
+                if(!existe) {
+                    victories.push_back(make_pair(corrida->getCircuit(), 1));
+                }
+            }
+        }
+    }
+    float racio = 0.0;
+    Circuit* circuito;
+    for(auto cir:victories){
+        if((cir.second/races.size()) * 100 > racio){
+            racio = (cir.second/races.size()) * 100;
+            circuito = cir.first;
+        }
+        else if((cir.second/races.size()) * 100 == racio && cir.first->getName() < circuito->getName()){
+            circuito = cir.first;
+        }
+    }
+    return circuito->getName();
 }
 
 Constructor * F1APP::mostRaceNotPole(int yearA, int yearB) {

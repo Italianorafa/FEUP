@@ -880,16 +880,16 @@ class ConstructorGraph {
 
 class F1APP {
     private:
-    
+        vector<Driver*> drivers;
+        vector<Constructor*> constructors;
+        list<Circuit*> circuits;
+        list<Race*> races;
     
     
     public:
         /* --- Constructor --- */
         F1APP();
-            vector<Driver*> drivers;
-            vector<Constructor*> constructors;
-            list<Circuit*> circuitos;
-            list<Race*> races;
+      
 
 
            /**
