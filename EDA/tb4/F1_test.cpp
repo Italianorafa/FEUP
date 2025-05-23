@@ -93,7 +93,7 @@ int verifica_noConnection(ConstructorGraph &consGraph)
     return er;
 }
 
-/*int verifica_updateTransfersOfYear(ConstructorGraph &consGraph, RaceManagement &racManager)
+int verifica_updateTransfersOfYear(ConstructorGraph &consGraph, RaceManagement &racManager)
 {
     int er = 0;
     
@@ -133,7 +133,7 @@ auto nod=consGraph.getConstructorNodes();
 }
 
     return er;
-}*/
+}
 
 
 int verifica_mostRaceFinish(F1APP &f1)

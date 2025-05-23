@@ -885,13 +885,11 @@ class F1APP {
         list<Circuit*> circuits;
         list<Race*> races;
 
-        vector<int> v59 = {8, 6, 4, 3, 2};
-        vector<int> v90 = {9, 6, 4, 3, 2, 1};
-        vector<int> v02 = {10, 6, 4, 3, 2, 1};
-        vector<int> v09 = {10, 8, 6, 5, 4, 3, 2, 1};
-        vector<int> v24 = {25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
-
-        vector<vector<int>> points {v59, v90, v02, v09, v24};
+        vector<int> v59 = {0,8, 6, 4, 3, 2};
+        vector<int> v90 = {0,9, 6, 4, 3, 2, 1};
+        vector<int> v02 = {0,10, 6, 4, 3, 2, 1};
+        vector<int> v09 = {0,10, 8, 6, 5, 4, 3, 2, 1};
+        vector<int> v24 = {0,25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
     public:
         /* --- Constructor --- */
         F1APP();
@@ -900,8 +898,10 @@ class F1APP {
 
         /** 
         *  @brief Return the vector of points, splited by season (0 = v59, 1 = v90, 2 = v02, 3 = v09, 4 = v24)
+        *  @param season the year's score system;
+        *  @return Returns the vector that represents se score system of the introduced season;
         */
-        vector<vector<int>> getPoints() const;
+        vector<int> scoreSystem(int season) ;
            /**
          *  @brief  Fill in the F1APP class by searching for information from the various classes available..
          *  @param  drM the object width all drivers.

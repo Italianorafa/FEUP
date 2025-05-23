@@ -1366,67 +1366,75 @@ Driver* F1APP::mostRaceFinish(int yearA, int yearB) {
 }
 
 list<string> F1APP::pointsWidthoutWon(Circuit* cir) {
-    list<string> pilotos;
-
-    for(auto d : drivers){
-        pilotos.push_back(d->getName());
-    }
-    if(!cir){
+    
+    if(cir == nullptr){
         return {};
     }
 
-    for(auto corridas : races){
-       
-        if(corridas->getCircuit()->getCircuitId() == cir->getCircuitId()){
-            
-            if(corridas->getSeason() > 1950 && corridas->getSeason() <= 1959 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 5)){
-                    bool encontrado = false;
-                    for(auto it = pilotos.begin(); it != pilotos.end(); it++){
-                        if(corridas->getListRaceResults()->drive->getName() == (*it)){
-                            encontrado = true;
-                            pilotos.erase(it);
-                        }
-                    }
-            }
-            if(corridas->getSeason() > 1960 && corridas->getSeason() <= 1990 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 6)){
-                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
-                        if(corridas->getListRaceResults()->drive->getName() == (*it)){
-                            encontrado = true;
-                            pilotos.erase(it);
-                        }
-                    }
-            }
-            if(corridas->getSeason() > 1991 && corridas->getSeason() <= 2002 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 6)){
-                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
-                        if(corridas->getListRaceResults()->drive->getName() == (it)){
-                            encontrado = true;
-                            pilotos.erase(it);
-                        }
-                    }
-            }
-            if(corridas->getSeason() > 2003 && corridas->getSeason() <= 2009 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 8)){
-                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
-                        if(corridas->getListRaceResults()->drive->getName() == (it)){
-                            encontrado = true;
-                            pilotos.erase(it);
-                        }
-                    }
-            }
-            if(corridas->getSeason() > 2010 && corridas->getSeason() <= 2014 && (corridas->getListRaceResults().position == 1 || corridas->getListRaceResults().position > 10)){
-                 for(auto it = pilotos.begin(); it != pilotos.end(); it++){
-                        if(corridas->getListRaceResults()->drive->getName() == (*it)){
-                            encontrado = true;
-                            pilotos.erase(it);
-                        }
-                    }
-            }
+    struct Status{
+        int scored;
+        int not_scored;
+        bool win;
+        string piloto;
+        Status(string name) : piloto(name), scored(0), not_scored(0), win(false){};
+    };
+    
+    vector<Status> driverStatus;
 
+    for(auto circuito : circuits){
+        if(circuito != cir) continue;;
+
+        for(auto corrida : races){
+            if(corrida->getCircuit() != cir) continue;
+            vector<int> system = scoreSystem(corrida->getSeason());
+
+            for(auto result : corrida->getListRaceResults()){
+                string driver = result->drive->getName();
+                int posicao = result->position;
+
+                //construindo o vector de status
+                size_t i;
+                for(i=0; i < driverStatus.size(); ++i){
+                    if(driverStatus[i].piloto == driver) break;
+                }
+                if(i == driverStatus.size()){
+                    driverStatus.push_back(Status(driver));
+                }
+
+                //atualizando os status
+                if(posicao == 1){
+                    driverStatus[i].win = true;
+                }
+                else{
+                    if(posicao > 0 && posicao < (int)system.size()){
+                        driverStatus[i].scored++;
+                    }
+                    else{
+                        driverStatus[i].not_scored++;
+                    }
+                }
+            }
         }
     }
-        pilotos.sort([](auto & c1, auto &c2) {
-             return c1 > c2;
-        });
-return pilotos;
+
+    
+    list<string> pilotos;
+
+    for(auto &stats : driverStatus){
+        if(!stats.win && stats.scored > 0 && stats.not_scored == 0){
+            pilotos.push_back(stats.piloto);
+        }
+    }
+
+
+
+    pilotos.sort([](const string & c1, const string &c2) {
+        return c1 < c2;
+    });
+
+   
+    return pilotos;
+
 }
 
 string F1APP::poleToWin() {
@@ -1516,55 +1524,56 @@ Constructor * F1APP::mostRaceNotPole(int yearA, int yearB) {
     if(wins.empty()) return nullptr;
     return wins[0].first;
 }
+
+vector<int> F1APP::scoreSystem(int season) {
+    if(season<1945 || season > 2025) return {};
+    if(season<1960) return v59;
+    else if(season>=1960 && season<1991) return v90;
+    else if(season>=1991 && season<2003) return v02;
+    else if(season>=2003 && season<2010) return v09;
+    else return v24;
+}
+
+
 vector<pair<string,int>> F1APP::classificationBySeason(int season){
-    vector<pair<string,int>> resultado; // driver,points
     
-    if(season < 1945 || season > 2025){
-    return {};
-    }
+    if(season<1945 || season>2025) return {};
 
-    for(auto piloto : drivers){
-        if(piloto == nullptr) continue;
-        int points = 0;
-        for(auto corrida: races){
-            if(corrida == nullptr || corrida->getSeason() != season) continue;
-            
-                for(auto results : corrida->getListRaceResults()){
-                    if(results == nullptr || results->status != 1 || results->drive != piloto) continue;
-                    
-                        
-                        int posicao = results->position;
-                        if(posicao <= 5 && season <1960){
-                            points += v59[posicao - 1];
-                        }
-                        else if(posicao <= 6 && season >= 1960 && season < 1991){
-                            points += v90[posicao - 1];
-                        }
-                        else if(posicao <= 6 && season >= 1991 && season < 2003){
-                            points += v02[posicao - 1];
-                        }
-                        else if(posicao <= 8 && season >= 2003 && season < 2010){
-                            points += v09[posicao - 1];
-                        }
-                        else if(posicao <= 10 && season >= 2010 && season < 2025){
-                            points += v24[posicao - 1];
-                        }
-                    
+    vector<int> system = scoreSystem(season);
+    vector<pair<string,int>> classificacao;
+
+    for(auto corrida : races){
+        if(corrida == nullptr || corrida->getSeason() != season) continue;
+        
+        for(auto results : corrida->getListRaceResults()){
+            int points = 0;
+            bool encontrado = false;
+            string piloto = results->drive->getName();
+            int posicao = results->position;
+            if(posicao > 0 && posicao < (int)system.size()){
+                points = system.at(posicao);
+            } 
+
+            for(auto &clas : classificacao){
+                if(piloto == clas.first){
+                    clas.second += points;
+                    encontrado = true;
+                    break;
                 }
-            
-        }
-        if(points > 0){
-            resultado.push_back(make_pair(piloto->getName(), points));
+            }
+            if(!encontrado){
+                classificacao.push_back(make_pair(piloto, points));
+            }
         }
     }
 
-    sort(resultado.begin(), resultado.end(), [](auto &r1, auto &r2){
-        return r1.second > r2.second;
+    sort(classificacao.begin(), classificacao.end(), [](const auto c1, const auto c2){
+        if(c1.second != c2.second){
+            return c1.second > c2.second;
+        }
+        return c1.first < c2.first;
     });
-
-    return resultado;
+    
+    return classificacao;
 }
 
-vector<vector<int>> F1APP::getPoints() const{
-    return points;
-}
