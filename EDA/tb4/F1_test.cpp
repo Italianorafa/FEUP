@@ -689,7 +689,7 @@ int main()
     } 
 
   
-    /*error = verifica_updateTransfersOfYear(ConstGraph,racManager);
+    error = verifica_updateTransfersOfYear(ConstGraph,racManager);
     if (error)
     {
         cout << "ERRO: "<< error << " erros encontrados em verifica_updateTransfersOfYear\n\n" <<  endl;
@@ -698,7 +698,7 @@ int main()
     else
     {
         cout << "OK: verifica_updateTransfersOfYear passou\n\n" << endl;
-    }*/
+    } 
  
   
     error = verifica_mostRaceFinish(f1);

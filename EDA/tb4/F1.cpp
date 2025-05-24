@@ -1110,26 +1110,23 @@ int ConstructorGraph::removeTransfer(Constructor* ConstructorA, Constructor* Con
 /**************************/
 
 Constructor* ConstructorGraph::worstVictories(Constructor* constructorA) {
-    if(constructorA == nullptr){
+    if(constructorA == nullptr || constructorPosition(constructorA) == -1){
         return nullptr;
     }
 
     int aPos = constructorPosition(constructorA);
-    if(aPos == -1){
-        return nullptr;
-    }
+    
 
     int maxDif = -10;
     int pointsDif = -10;
     Constructor* cons = nullptr;
 
-    auto netLine = network.at(aPos);
-
-    for(auto it = netLine.begin(); it != netLine.end(); it++){
-        if((*it)->winsDiff > maxDif || ((*it)->winsDiff == maxDif && (*it)->pointsDiff > pointsDif) || (*it)->winsDiff == maxDif && (*it)->pointsDiff == pointsDif && (*it)->constructor->getName() < (cons->getName())){ 
-            maxDif = (*it)->winsDiff;
-            pointsDif = (*it)->pointsDiff;
-            cons = (*it)->constructor;
+    
+    for(auto transfer : network[aPos]){
+        if(transfer->winsDiff > maxDif || (transfer->winsDiff == maxDif && transfer->pointsDiff > pointsDif) || transfer->winsDiff == maxDif && transfer->pointsDiff == pointsDif && transfer->constructor->getName() < (cons->getName())){ 
+            maxDif = transfer->winsDiff;
+            pointsDif = transfer->pointsDiff;
+            cons = transfer->constructor;
         }
     }
 
@@ -1137,7 +1134,7 @@ Constructor* ConstructorGraph::worstVictories(Constructor* constructorA) {
 }
 
 Constructor* ConstructorGraph::moreDrivers(Constructor* constructorB) {
-    if(constructorB == nullptr){
+    if(constructorB == nullptr || constructorPosition(constructorB) == -1){
         return nullptr;
     }
     int maxDriv = -10;
@@ -1145,14 +1142,13 @@ Constructor* ConstructorGraph::moreDrivers(Constructor* constructorB) {
     int maxDif = -10;
     Constructor* cons = nullptr;
     
-    for(int i=0; i<network.size(); i++){
-        auto line = network.at(i);
-        for(auto it : line){
-            if(it->constructor == constructorB){
-                if(it->numDrivers>maxDriv || (it->numDrivers == maxDriv && it->pointsDiff > pointsDif) || (it->numDrivers == maxDriv && it->pointsDiff == pointsDif && it->winsDiff>maxDif) || (it->numDrivers == maxDriv && it->pointsDiff == pointsDif && it->winsDiff == maxDif && it->constructor->getName() < cons->getName())){
-                    maxDriv = it->numDrivers;
-                    maxDif = it->winsDiff;
-                    pointsDif = it->pointsDiff;
+    for(size_t i=0; i<network.size(); i++){
+        for(auto transfer : network[i]){
+            if(transfer->constructor == constructorB){
+                if(transfer->numDrivers>maxDriv || (transfer->numDrivers == maxDriv && transfer->pointsDiff > pointsDif) || (transfer->numDrivers == maxDriv && transfer->pointsDiff == pointsDif && transfer->winsDiff>maxDif) || (transfer->numDrivers == maxDriv && transfer->pointsDiff == pointsDif && transfer->winsDiff == maxDif && transfer->constructor->getName() < cons->getName())){
+                    maxDriv = transfer->numDrivers;
+                    maxDif = transfer->winsDiff;
+                    pointsDif = transfer->pointsDiff;
                     cons = constructorNodes[i];
                 }
             }
@@ -1165,14 +1161,12 @@ Constructor* ConstructorGraph::moreDrivers(Constructor* constructorB) {
 vector<string> ConstructorGraph::noConnection ( Constructor* constructorA ) {
     vector<string> construtores;
     
-    if(constructorA == nullptr){
+    if(constructorA == nullptr || constructorPosition(constructorA) <= -1){
         return {};
     }
 
     int aPos = constructorPosition(constructorA);
-    if(aPos == -1 || aPos == -2){
-        return {};
-    }
+    
 
     auto line = network.at(aPos);
     for(size_t i=0; i<constructorNodes.size(); i++){
@@ -1188,112 +1182,91 @@ vector<string> ConstructorGraph::noConnection ( Constructor* constructorA ) {
 }
 
 int ConstructorGraph::updateTransfersOfYear(int year,  RaceManagement &RaM) {
-    if(year<1950 || year>2025){
-        return -1;
-    }
-    vector<pair<Driver*,Constructor*>> atual; //year 
-    vector<pair<Driver*,Constructor*>> anterior; //year-1
-    
-    // Construção dos vetores atual e anterior
-    for(auto race: RaM.getListRaces()){
-        if(race->getSeason() == year-1){
-            for(auto result : race->getListRaceResults()){
-                bool exist = false;
-                for(auto par : anterior){
-                    if(par.first == result->drive){
-                        exist = true;
-                        break;
-                    }
-                }
-                if(!exist){
-                    anterior.push_back(make_pair(result->drive, result->constructor));
-                }
-            }
-        }
-        else if(race->getSeason() == year){
-            for(auto result : race->getListRaceResults()){
-                bool exist = false;
-                for(auto par : atual){
-                    if(par.first == result->drive){
-                        exist = true;
-                        break;
-                    }
-                }
-                if(!exist){
-                    atual.push_back(make_pair(result->drive, result->constructor));
-                }
-            }
-        }
-        else continue;
-    }
+    if(year<1945 || year>2025) return -1;
 
-    // calculo das vitorias e pontos
-    vector<pair<Constructor*, pair<int,int>>> status;
-    
-    for(auto aux : constructorNodes){
-        status.push_back(make_pair(aux, make_pair(0,0)));
-    }
-    
-    for(auto corrida : RaM.getListRaces()){
-        if(corrida->getSeason() >= year){
-            bool counted = false;
-            for(auto resultado : corrida->getListRaceResults()){
-                if(!counted && resultado->position == 1 && resultado->status == 1){
-                    for(auto &par : status){
-                        if(par.first == resultado->constructor){
-                            par.second.first++;
-                            counted = true;
-                            break;
+    vector<int> v59 = {0,8, 6, 4, 3, 2};
+    vector<int> v90 = {0,9, 6, 4, 3, 2, 1};
+    vector<int> v02 = {0,10, 6, 4, 3, 2, 1};
+    vector<int> v09 = {0,10, 8, 6, 5, 4, 3, 2, 1};
+    vector<int> v24 = {0,25, 18, 15, 12, 10, 8, 6, 4, 2, 1};
+
+    vector<SeasonData*> anterior;
+    vector<SeasonData*> atual;
+
+    for(auto race : RaM.getListRaces()){
+        if(!race) continue;
+        int season = race->getSeason();
+        if(season != year && season != year - 1) continue;
+
+        vector<int> system;
+        if (season < 1960) system= v59;
+        else if (season < 1991) system = v90;
+        else if (season < 2003) system = v02;
+        else if (season < 2010) system = v09;
+        else system = v24;
+
+        for(auto result : race->getListRaceResults()){
+            if(!result || !result->drive || !result->constructor) continue;
+            Driver* drive = result->drive;
+            Constructor* construtor = result->constructor;
+            int posicao = result->position;
+
+            if(season == year){
+                bool found = false;
+                for(auto atu : atual){
+                    if(atu->driver == drive){
+                        found = true;
+                        if(posicao>0 && posicao == 1){
+                            atu->wins++;
+                            atu->points += system[posicao];
+                            
+                        }
+                        else if(posicao > 1 && posicao<system.size()){
+                            atu->points += system[posicao];
+                            
                         }
                     }
                 }
-                int points = 0;
-                if(resultado->position >= 1 && resultado->position <= 8){
-                    switch (resultado->position)
-                    {
-                    case 1: points = 10; break;
-                    case 2: points = 8; break;
-                    case 3: points = 6; break;
-                    case 4: points = 5; break;
-                    case 5: points = 4; break;
-                    case 6: points = 3; break;
-                    case 7: points = 2; break;
-                    case 8: points = 1; break;
+                if(!found){
+                    atual.push_back(new SeasonData(drive, construtor, 0, 0));
                 }
-                for(auto stat : status){
-                    if(stat.first == resultado->constructor){
-                        stat.second.second += points;
-                        break;
+            }
+            else if(season == year -1){
+                bool found = false;
+                for(auto ant : anterior){
+                    if(ant->driver == drive){
+                        found = true;
+                        if(posicao>0 && posicao == 1){
+                            ant->wins++;
+                            ant->points += system[posicao];
+                            
+                        }
+                        else if(posicao > 1 && posicao<system.size()){
+                            ant->points += system[posicao];
+                            
                         }
                     }
+                }
+                if(!found){
+                    anterior.push_back(new SeasonData(drive, construtor, 0, 0));
                 }
             }
         }
     }
-
 
     int transfers = 0;
-    for(auto ant: anterior){
-        for(auto atu: atual){
-            if(ant.first == atu.first && ant.second != atu.second){
+
+    for(auto atu : atual){
+        for(auto ant : anterior){
+            if((atu->driver == ant->driver) && (atu->constructor != ant->constructor)){
                 transfers++;
-                int winDif = 0, pointsDif = 0;
-                for(auto stat : status){
-                    if(stat.first == atu.second){
-                        winDif += stat.second.first;
-                        pointsDif += stat.second.second;
-                    }
-                    if(stat.first == ant.second){
-                        winDif -= stat.second.first;
-                        pointsDif -= stat.second.second;
-                    }
-                }
-                TransferData* transf = new TransferData(atu.second, 1, winDif, transfers);
-                addTranfer(ant.second, transf);
+                int pointsDif = ant->points - atu->points;
+                int winsDif = ant->wins - atu->wins;
+                TransferData* transfer = new TransferData(ant->constructor, pointsDif, winsDif, 1);
+                addTranfer(atu->constructor, transfer);
             }
         }
     }
-    
     return transfers;
 }
 
