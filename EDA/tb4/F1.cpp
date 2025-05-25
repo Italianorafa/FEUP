@@ -1271,10 +1271,7 @@ int ConstructorGraph::updateTransfersOfYear(int year,  RaceManagement &RaM) {
 }
 
 
-F1APP::F1APP()
-{
-    
-}
+F1APP::F1APP() : drivers({}) , constructors({}), circuits({}), races({}) {}
 
 
 void F1APP::updateF1APP(DriverManagement &drM, ConstructorManagement &coM, CircuitManagement &ciM, RaceManagement &raM) {
@@ -1287,55 +1284,70 @@ void F1APP::updateF1APP(DriverManagement &drM, ConstructorManagement &coM, Circu
 Driver* F1APP::mostRaceFinish(int yearA, int yearB) {
 
     if(yearA < 1945 || yearA > 2025 || yearB < 1945 || yearB > 2025 || yearA > yearB) return nullptr;
-    vector<pair<Driver*,int>> sequencias;
+    
+    vector<pair<Driver*,int>> sequencias, maximo;
 
-    auto orderedRaces = races;
-    orderedRaces.sort([](Race* r1, Race* r2){
-        return r1->getSeason() <= r2->getSeason();
+    if(yearA <= yearB){
+        auto orederedRaces = races;
         
-    });
-    for(auto piloto : drivers){
-        int maxSequence=0, currentSequence=0;
-
-        for(auto corrida : orderedRaces){
-            if(corrida->getSeason() >= yearA && corrida->getSeason() <= yearB){
-                bool inRace = false;
-                for(auto resultados : corrida->getListRaceResults()){
-                    if(resultados->drive == piloto){
-                        if(resultados->position != -1){
-                            inRace = true;
-                            currentSequence++;
-                        }
-                        else{
-                            inRace = true;
-                            if(maxSequence < currentSequence){
-                            maxSequence = currentSequence;
+        orederedRaces.sort( [](Race* a, Race* b){
+            if (a->getSeason() == b->getSeason())
+                return a->getRound() < b->getRound();
+            return a->getSeason() < b->getSeason();
+        });
+        for(auto& corrida: orederedRaces){
+            int season = corrida->getSeason();
+            
+            if(season >= yearA && season <= yearB) {
+                for(auto& resultado: corrida->getListRaceResults()){
+                    if(resultado->position != -1 && resultado->position != 0){
+                        bool inRace = false;
+                        for(auto& s: sequencias){
+                            if(s.first == resultado->drive){
+                                s.second++;
+                                inRace = true;
+                                break;
                             }
-                            currentSequence = 0;
                         }
-                        break;
-                    } 
-                }
-                if(!inRace){
-                    if(maxSequence < currentSequence){
-                        maxSequence = currentSequence;
+                        if(!inRace){
+                            sequencias.push_back(make_pair(resultado->drive, 1));
+                            maximo.push_back(make_pair(resultado->drive, 1));
+                        }
                     }
-                    currentSequence = 0;
+                    else{
+                        for(int i = 0; i < (int)sequencias.size();i++){
+                            if(sequencias[i].first == resultado->drive){
+                                if(maximo[i].second < sequencias[i].second){
+                                    maximo[i].second = sequencias[i].second;
+                                }
+                                sequencias[i].second = 0;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
-            
         }
-        if(maxSequence < currentSequence){
-            maxSequence = currentSequence;
-        }
-        if(maxSequence>0) sequencias.push_back(make_pair(piloto, maxSequence));
     }
-    sort(sequencias.begin(), sequencias.end(), [](auto s1, auto s2){
-        if(s1.second != s2.second) return s1.second > s2.second;
-        else return s1.first->getName() < s2.first->getName();
-    });
+    for(int i = 0; i < (int)sequencias.size(); i++){
+        if(maximo[i].second < sequencias[i].second){
+            maximo[i].second = sequencias[i].second;
+        }
+    } 
+
+
     if(sequencias.empty()) return nullptr;
-    return sequencias[0].first;
+
+    pair<Driver*,int> final = maximo[0];
+
+    for (int i = 1; i < (int)maximo.size(); i++)
+    {
+        if(final.second < maximo[i].second || (final.first->getName() > maximo[i].first->getName() && final.second == maximo[i].second)){
+            final = maximo[i];
+        }
+    }
+    
+    return final.first;
 }
 
 list<string> F1APP::pointsWidthoutWon(Circuit* cir) {
@@ -1414,7 +1426,7 @@ string F1APP::poleToWin() {
     
     vector <pair<Circuit*, pair<int,int>>> cirStatus; //circuito, vitorias, corridas
 
-    for(auto corrida : races){
+    for(Race* corrida : races){
         // Contando corridas 
         if(corrida == nullptr || corrida->getCircuit() == nullptr) continue;
         Circuit* circuito = corrida->getCircuit();
@@ -1431,7 +1443,7 @@ string F1APP::poleToWin() {
         }
         // Contando vitorias
 
-        for(auto resultado: corrida->getListRaceResults()){
+        for(DriResult* resultado: corrida->getListRaceResults()){
             if(resultado == nullptr){
                 continue;
             }
