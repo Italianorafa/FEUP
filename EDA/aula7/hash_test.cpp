@@ -31,7 +31,7 @@ void comparetime_hash(string arr1[], int size){
     end2 = clock();
 
     time1 = (double)(end2 - beg2) / CLOCKS_PER_SEC;
-    cout<< "Time used by the first hash function is " << time2 << endl;
+    cout<< "Time used by the second hash function is " << time2 << endl;
 }
 
 int main(){
