@@ -39,7 +39,7 @@ void Tree::preOrder(Node *tree_node)
     }
 }
 
-Node* Tree::searchNode(uint data)
+Node* Tree::searchNode(int data)
 {
     if (!root) return nullptr;
     
@@ -52,7 +52,7 @@ Node* Tree::searchNode(uint data)
     return current;
 }
 
-void Tree::insert(Node *tree_node, uint data)
+void Tree::insert(Node *tree_node, int data)
 {
     if (!root) root = new Node(data);
     else {
@@ -89,13 +89,22 @@ int Tree::getLevel(Node *search_node, Node *tree_node, int level)
     return l;
 }
 
-uint Tree::prodReplace(Node *tree_node)
+int Tree::prodReplace(Node *tree_node)
 {
-    /* Implementar 1a) */
+    
+    if(tree_node == nullptr) return 1;
+    
+    int left = prodReplace(tree_node->left);
+    int right = prodReplace(tree_node->right);
+    
+    int valorAntigo = tree_node->data;
+    tree_node->data = left * right;
+    return tree_node->data * valorAntigo;
 }
 
 void Tree::printSibling(Node *search_node, Node *tree_node)
 {
-    /* Implementar 1b) */
+    if(search_node == nullptr) return;
+    int lev = getLevel(search_node, root, 1) - 1;
 }
 

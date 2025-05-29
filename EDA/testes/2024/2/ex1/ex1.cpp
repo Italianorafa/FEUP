@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void createTree(Tree *tree, vector<uint> vec);
+void createTree(Tree *tree, vector<int> vec);
 void testPrintSibling(Tree *tree, Node *node);
 void testProdReplace(Tree *tree);
 
@@ -16,7 +16,7 @@ void testProdReplace(Tree *tree);
 int main()
 {
     Tree bst, bst1, bst2, bst3, bst4, bst5, bst6;
-    vector<uint> v1, v2, v3;
+    vector<int> v1, v2, v3;
 
     v1 = {10, 12, 5, 4, 20, 8, 7, 15, 13};
     v2 = {25, 36, 20, 22, 10, 12, 5, 8, 1, 15, 40, 30, 28, 38, 48, 50, 45};
@@ -55,7 +55,7 @@ int main()
  *  @param  vec vetor com os valores dos nós a inserir na árvore 
  *  @return void
  */
-void createTree(Tree *tree, vector<uint> vec)
+void createTree(Tree *tree, vector<int> vec)
 {
     for (int i = 0; i < (int)vec.size(); i++) tree->insert(tree->getRoot(), vec[i]);
 }

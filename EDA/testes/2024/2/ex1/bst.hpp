@@ -11,7 +11,7 @@ struct Node
     /**
      *  @brief Conteúdo do nó.
      */
-    uint data;
+    int data;
 
     /**
      *  @brief Apontador para o filho esquerdo do nó.
@@ -26,7 +26,7 @@ struct Node
     /**
      *  @brief Construtor.
      */
-    Node(uint data)
+    Node(int data)
     {
         this->data = data;
         this->left = this->right = nullptr;
@@ -96,7 +96,7 @@ class Tree
          *  @param  data conteúdo do nó que se pretende pesquisar
          *  @return apontador para o nó encontrado || nullptr caso não seja encontrado ou em caso de erro
          */
-        Node* searchNode(uint data);
+        Node* searchNode(int data);
 
         /** 
          *  @brief  Adicionar à árvore um novo nó.
@@ -104,7 +104,7 @@ class Tree
          *  @param  data conteúdo do nó a inserir
          *  @return void
          */
-        void insert(Node *tree_node, uint data);
+        void insert(Node *tree_node, int data);
 
         /** 
          *  @brief  Calcular a altura de um nó da árvore.
@@ -142,7 +142,7 @@ class Tree
          *  @note   Em cada nó, é guardado o produto dos valores dos nós das subárvores da esquerda e da direita.
          *  @note   O número de nós é mantido. Nós sem filhos têm um correspondente produto igual a um.
          */
-        uint prodReplace(Node *tree_node);
+        int prodReplace(Node *tree_node);
 };
 
 #endif
