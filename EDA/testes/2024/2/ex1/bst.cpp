@@ -104,7 +104,22 @@ int Tree::prodReplace(Node *tree_node)
 
 void Tree::printSibling(Node *search_node, Node *tree_node)
 {
-    if(search_node == nullptr) return;
+    if(search_node == nullptr || tree_node == nullptr) return;
     int lev = getLevel(search_node, root, 1) - 1;
+    if(lev > 0){
+        if(tree_node->right == nullptr || tree_node->left == nullptr) return;
+        else if(lev == getLevel(tree_node, root, 1) && tree_node->right == search_node){
+            cout << tree_node->left->data;
+            
+        }
+        else if(lev == getLevel(tree_node, root, 1) && tree_node->left == search_node){
+            cout<< tree_node->right->data;
+            
+        }
+        else{
+            printSibling(search_node, tree_node->right);
+            printSibling(search_node, tree_node->left);
+        }
+    }
 }
 

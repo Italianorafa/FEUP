@@ -225,9 +225,27 @@ void HashTable::show()
 
 string maxCollisions(HashTable &ht, vector<string> &v)
 {
-
- /* Implementar 3 */
-
+    if(v.empty()) return "";
+    int i = 0, maxColisoes = 0, tamanho = (int)v.size();
+    string maxColStr = "";
+    
+    for(string &str : v){
+        int colisoes = 0, j = 0;
+        while(j < ht.getTableSize()){
+            int simIndex = (ht.hashFunction(str) + ht.probingFunction(str, j)) % ht.getTableSize();
+            if(ht.getTable()[simIndex] == ""){
+                break;
+            }
+            colisoes++;
+            j++;
+        }
+        if(colisoes > maxColisoes){
+            maxColisoes = colisoes;
+            maxColStr = str;
+        }
+    }
+    
+    return maxColStr;
 }
  void showVector(vector<string> ve)
  {
