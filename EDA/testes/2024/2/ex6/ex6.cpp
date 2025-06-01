@@ -30,12 +30,22 @@ class Graph {
 
         int addEdge(int v1, int v2) //undirected graph
         {
-            /* Exercise 4a) */
+            if(v1<0 || v2<0 || v1>this->v || v2>this->v) return -1;
+            for(int ed: edges[v1]){
+                if(ed == v2) return 1;
+            }
+            for(int ed: edges[v2]){
+                if(ed == v1) return 1;
+            }
+            edges[v1].push_back(v2);
+            edges[v2].push_back(v1);
+            return 0;
         }
         
         int countNeighbours(int node)
         {
-            /* Exercise 4b) */
+            if(node<0 || node>v) return -1;
+            return edges[node].size();
         }
 };
 

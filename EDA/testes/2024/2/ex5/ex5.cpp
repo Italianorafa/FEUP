@@ -14,17 +14,41 @@ struct TreeNode {
 
 void inorderTraversal(TreeNode *root)
 {
-    /* Exercise 3a) */
+    if(root != nullptr){
+        if(root->left != nullptr) inorderTraversal(root->left);
+        cout<<root->val<<" ";
+        if(root->right != nullptr) inorderTraversal(root->right);
+    }
 }
 
 int maxDepth(TreeNode *root)
-{
-    /* Exercise 3b) */
+{   
+    if(root == nullptr) return 0;
+    else{
+        int leftDepth = maxDepth(root->left);
+        int rightDepth = maxDepth(root->right);
+        if(leftDepth > rightDepth) return leftDepth + 1;
+        else return rightDepth + 1;
+    }
 }
 
 TreeNode* lowestCommonAncestor(TreeNode *root, TreeNode *node1, TreeNode *node2)
 {
-    /* Exercise 3c) */
+    if(root != nullptr && (root == node1 || root == node2)) return root;
+
+    TreeNode* esquerda = lowestCommonAncestor(root->left, node1, node2);
+    TreeNode* direita = lowestCommonAncestor(root->right, node1, node2);
+
+    if(esquerda != nullptr && direita != nullptr) return root;
+
+    else if(esquerda != nullptr && direita == nullptr){
+        return esquerda;
+    }
+    else if(esquerda == nullptr && direita != nullptr){
+        return direita;
+    }
+    else return NULL;
+
 }
 
 /* ---------------------------------------------- */

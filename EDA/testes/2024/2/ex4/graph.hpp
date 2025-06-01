@@ -31,7 +31,7 @@ public:
 
     //alinea a
     queue<int> BFS(int s);
-
+    
 
 
 

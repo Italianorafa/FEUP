@@ -55,7 +55,27 @@ void Graph::print()
 
 queue<int> Graph::BFS(int s)
 {
-   /* Implementar 4a) */
+    if(s<0) return {};
+    list<int> visitado, final;
+    
+    visitado.push_back(s); final.push_back(s);
+    while(!visitado.empty()){
+        int index = visitado.front();
+        for(auto &item : adj[index]){
+            if(find(final.begin(), final.end(), item) == final.end()){
+                final.push_back(item);
+                visitado.push_back(item);
+            }
+        }
+        visitado.pop_front();
+    }
+    queue<int> qFinal;
+
+    for(auto &it:final){
+        qFinal.push(it);
+    }
+
+    return qFinal;
 }
 
 

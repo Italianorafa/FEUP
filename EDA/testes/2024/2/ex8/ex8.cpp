@@ -9,10 +9,19 @@ using namespace std;
 
 int firstToLast(priority_queue<int> &pq)
 {
-    
-
+    if(pq.empty()) return -1;
+    if(pq.size() == 1) return 0;
+    priority_queue<int, vector<int>, greater<int>> inversa;
+    priority_queue<int> aux = pq;
+    while(!aux.empty()){
+        inversa.push(aux.top());
+        aux.pop();
+    }
+    int elem = inversa.top() - 1;
+    pq.pop();
+    pq.push(elem);
     return 0;
-}
+}  
 
  void printQueue(priority_queue<int> pq)
  {

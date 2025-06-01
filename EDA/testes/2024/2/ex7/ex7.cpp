@@ -12,8 +12,12 @@ Considere a representação de àrvores binárias BST dada nas aulas TPs. Implem
 using namespace std;
 
 bool isBST(Node * root){
-    
-  
+  int lastValue = -100;
+  if(root == nullptr) return true;
+  if(!isBST(root->left)) return false;
+  if(root->item < lastValue) return false;
+  lastValue = root->item;
+  return isBST(root->right);
 }
 
 
